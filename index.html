@@ -1,30 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>USDT Balance & Price Viewer</title>
+  <title>USDT Balance & Fake Price Viewer</title>
   <script src="https://cdn.jsdelivr.net/npm/@tronweb3/tronwallet-adapter@latest/dist/tronwallet-adapter.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+      text-align: center;
+      padding: 50px;
+    }
+    h2 {
+      color: #444;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #2ca4ab;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218086;
+    }
+    .info {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
 </head>
 <body>
-  <h2>USDT Balance & Price</h2>
+  <h2>USDT Balance & Fake Price Viewer</h2>
   <button onclick="connectWallet()">Connect TronLink</button>
-  <p id="address"></p>
-  <p id="balance"></p>
-  <p id="value"></p>
+
+  <div class="info">
+    <p id="address"></p>
+    <p id="balance"></p>
+    <p id="value"></p>
+  </div>
 
   <script>
     const contractAddress = "TBoEs3QG2GiRc4BUtxqMYnnBoGDgik8uQL";
     const decimals = 6;
-    const tokenPrice = 1; // 1 USD per token
+    const tokenPrice = 1; // 1 USD per token (fake price)
 
     async function connectWallet() {
-      const checkTronWeb = setInterval(async () => {
-        if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
-          clearInterval(checkTronWeb);
+      if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+        const address = window.tronWeb.defaultAddress.base58;
+        document.getElementById("address").innerText = "Wallet: " + address;
+        getBalance(address);
+      } else if (window.tronLink) {
+        try {
+          await window.tronLink.request({ method: 'tron_requestAccounts' });
           const address = window.tronWeb.defaultAddress.base58;
           document.getElementById("address").innerText = "Wallet: " + address;
           getBalance(address);
+        } catch (error) {
+          console.error("User rejected connection or error:", error);
+          alert("Connection to TronLink was rejected or failed.");
         }
-      }, 500);
+      } else {
+        alert("TronLink wallet not found! Please install the extension.");
+      }
     }
 
     async function getBalance(address) {
@@ -35,7 +75,7 @@
         document.getElementById("balance").innerText = "Balance: " + balance + " USDT";
 
         const value = balance * tokenPrice;
-        document.getElementById("value").innerText = "Value (display only): $" + value.toFixed(2);
+        document.getElementById("value").innerHTML = "<strong>Value (fake):</strong> $" + value.toFixed(2);
       } catch (err) {
         console.error("Contract error: ", err);
         document.getElementById("balance").innerText = "Error fetching balance";
