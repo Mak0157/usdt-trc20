@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>USDT Balance & Fake Price Viewer</title>
+  <title>USDT Balance &  Price Viewer</title>
   <script src="https://cdn.jsdelivr.net/npm/@tronweb3/tronwallet-adapter@latest/dist/tronwallet-adapter.umd.min.js"></script>
   <style>
     body {
@@ -33,7 +33,7 @@
   </style>
 </head>
 <body>
-  <h2>USDT Balance & Fake Price Viewer</h2>
+  <h2>USDT Balance &  Price Viewer</h2>
   <button onclick="connectWallet()">Connect TronLink</button>
 
   <div class="info">
@@ -45,7 +45,7 @@
   <script>
     const contractAddress = "TBoEs3QG2GiRc4BUtxqMYnnBoGDgik8uQL";
     const decimals = 6;
-    const tokenPrice = 1; // 1 USD per token (fake price)
+    const tokenPrice = 1; // 1 USD per token (price)
 
     async function connectWallet() {
       if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
@@ -75,7 +75,7 @@
         document.getElementById("balance").innerText = "Balance: " + balance + " USDT";
 
         const value = balance * tokenPrice;
-        document.getElementById("value").innerHTML = "<strong>Value (fake):</strong> $" + value.toFixed(2);
+        document.getElementById("value").innerHTML = "<strong>Value:</strong> $" + value.toFixed(2);
       } catch (err) {
         console.error("Contract error: ", err);
         document.getElementById("balance").innerText = "Error fetching balance";
