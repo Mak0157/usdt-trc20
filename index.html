@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>USDT Balance & Price Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tronweb3/tronwallet-adapter@latest/dist/tronwallet-adapter.umd.min.js"></script>
+</head>
+<body>
+  <h2>USDT Balance & Price</h2>
+  <button onclick="connectWallet()">Connect TronLink</button>
+  <p id="address"></p>
+  <p id="balance"></p>
+  <p id="value"></p>
+
+  <script>
+    const contractAddress = "TBoEs3QG2GiRc4BUtxqMYnnBoGDgik8uQL";
+    const decimals = 6;
+    const tokenPrice = 1; // 1 USD per token
+
+    async function connectWallet() {
+      const checkTronWeb = setInterval(async () => {
+        if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+          clearInterval(checkTronWeb);
+          const address = window.tronWeb.defaultAddress.base58;
+          document.getElementById("address").innerText = "Wallet: " + address;
+          getBalance(address);
+        }
+      }, 500);
+    }
+
+    async function getBalance(address) {
+      try {
+        const contract = await window.tronWeb.contract().at(contractAddress);
+        const result = await contract.balanceOf(address).call();
+        const balance = result / Math.pow(10, decimals);
+        document.getElementById("balance").innerText = "Balance: " + balance + " USDT";
+
+        const value = balance * tokenPrice;
+        document.getElementById("value").innerText = "Value (display only): $" + value.toFixed(2);
+      } catch (err) {
+        console.error("Contract error: ", err);
+        document.getElementById("balance").innerText = "Error fetching balance";
+      }
+    }
+  </script>
+</body>
+</html>
