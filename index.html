@@ -1,84 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>USDT Balance &  Price Viewer</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tronweb3/tronwallet-adapter@latest/dist/tronwallet-adapter.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USDT Tronscan Clone</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f6f9;
+      background-color: #f9f9f9;
       color: #333;
-      text-align: center;
-      padding: 50px;
     }
-    h2 {
-      color: #444;
+    header {
+      background-color: #d83c3c;
+      padding: 20px;
+      text-align: center;
+      color: white;
     }
     button {
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #2ca4ab;
+      background-color: #d83c3c;
       color: white;
+      padding: 10px 20px;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #218086;
+      background-color: #ff6347;
     }
-    .info {
+    .token-list, .transaction-list {
+      display: flex;
+      flex-direction: column;
       margin-top: 20px;
-      font-size: 18px;
+    }
+    .token, .transaction {
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .transaction {
+      display: flex;
+      justify-content: space-between;
+    }
+    .token-name {
+      font-weight: bold;
+    }
+    .value {
+      color: green;
     }
   </style>
 </head>
 <body>
-  <h2>USDT Balance &  Price Viewer</h2>
-  <button onclick="connectWallet()">Connect TronLink</button>
-
-  <div class="info">
-    <p id="address"></p>
-    <p id="balance"></p>
-    <p id="value"></p>
+  <header>
+    <h1>USDT Tronscan Clone</h1>
+    <button onclick="connectWallet()">Connect TronLink</button>
+  </header>
+  
+  <div>
+    <h2>Token List</h2>
+    <div class="token-list">
+      <div class="token">
+        <span class="token-name">USDT</span>
+        <span class="value">$1.00</span>
+      </div>
+      <div class="token">
+        <span class="token-name">BTC</span>
+        <span class="value">$45,000.00</span>
+      </div>
+      <div class="token">
+        <span class="token-name">ETH</span>
+        <span class="value">$3,000.00</span>
+      </div>
+    </div>
   </div>
 
-  <script>
-    const contractAddress = "TBoEs3QG2GiRc4BUtxqMYnnBoGDgik8uQL";
-    const decimals = 6;
-    const tokenPrice = 1; // 1 USD per token (price)
+  <div>
+    <h2>Recent Transactions</h2>
+    <div class="transaction-list">
+      <div class="transaction">
+        <span>TX1</span>
+        <span>Sent: 50 USDT</span>
+      </div>
+      <div class="transaction">
+        <span>TX2</span>
+        <span>Sent: 20 USDT</span>
+      </div>
+    </div>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@tronweb3/tronwallet-adapter@latest/dist/tronwallet-adapter.umd.min.js"></script>
+  <script>
     async function connectWallet() {
       if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
         const address = window.tronWeb.defaultAddress.base58;
-        document.getElementById("address").innerText = "Wallet: " + address;
-        getBalance(address);
-      } else if (window.tronLink) {
-        try {
-          await window.tronLink.request({ method: 'tron_requestAccounts' });
-          const address = window.tronWeb.defaultAddress.base58;
-          document.getElementById("address").innerText = "Wallet: " + address;
-          getBalance(address);
-        } catch (error) {
-          console.error("User rejected connection or error:", error);
-          alert("Connection to TronLink was rejected or failed.");
-        }
+        alert("Connected to TronLink: " + address);
+        // Additional functionality to get balance and display transactions
       } else {
-        alert("TronLink wallet not found! Please install the extension.");
-      }
-    }
-
-    async function getBalance(address) {
-      try {
-        const contract = await window.tronWeb.contract().at(contractAddress);
-        const result = await contract.balanceOf(address).call();
-        const balance = result / Math.pow(10, decimals);
-        document.getElementById("balance").innerText = "Balance: " + balance + " USDT";
-
-        const value = balance * tokenPrice;
-        document.getElementById("value").innerHTML = "<strong>Value:</strong> $" + value.toFixed(2);
-      } catch (err) {
-        console.error("Contract error: ", err);
-        document.getElementById("balance").innerText = "Error fetching balance";
+        alert("TronLink wallet not found!");
       }
     }
   </script>
