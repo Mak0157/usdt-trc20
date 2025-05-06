@@ -2,103 +2,148 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>USDT Tronscan Clone</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tronweb3/tronwallet-adapter@latest/dist/tronwallet-adapter.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
+      background-color: #f3f3f3;
+      margin: 0;
+      padding: 0;
     }
     header {
-      background-color: #d83c3c;
+      background-color: #29b67d;
       padding: 20px;
+      color: white;
       text-align: center;
-      color: white;
     }
-    button {
-      background-color: #d83c3c;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      cursor: pointer;
+    .container {
+      padding: 20px;
     }
-    button:hover {
-      background-color: #ff6347;
-    }
-    .token-list, .transaction-list {
-      display: flex;
-      flex-direction: column;
-      margin-top: 20px;
-    }
-    .token, .transaction {
-      padding: 10px;
-      margin: 5px 0;
-      background-color: #fff;
+    .token {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
       border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .transaction {
       display: flex;
       justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .token-name {
-      font-weight: bold;
+    button {
+      background: #29b67d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      border-radius: 3px;
     }
-    .value {
-      color: green;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #29b67d;
+      color: white;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>USDT Tronscan Clone</h1>
-    <button onclick="connectWallet()">Connect TronLink</button>
   </header>
-  
-  <div>
-    <h2>Token List</h2>
-    <div class="token-list">
+
+  <div class="container">
+    <button onclick="connectWallet()">Connect TronLink</button>
+    <p id="walletAddress"></p>
+
+    <div id="tokenList">
       <div class="token">
-        <span class="token-name">USDT</span>
-        <span class="value">$1.00</span>
-      </div>
-      <div class="token">
-        <span class="token-name">BTC</span>
-        <span class="value">$45,000.00</span>
-      </div>
-      <div class="token">
-        <span class="token-name">ETH</span>
-        <span class="value">$3,000.00</span>
+        <span>USDT</span>
+        <span id="usdtBalance">Balance: -- | $--</span>
       </div>
     </div>
+
+    <h3>Recent Transactions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>TxID</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Amount</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="txTable">
+      </tbody>
+    </table>
+
   </div>
 
-  <div>
-    <h2>Recent Transactions</h2>
-    <div class="transaction-list">
-      <div class="transaction">
-        <span>TX1</span>
-        <span>Sent: 50 USDT</span>
-      </div>
-      <div class="transaction">
-        <span>TX2</span>
-        <span>Sent: 20 USDT</span>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@tronweb3/tronwallet-adapter@latest/dist/tronwallet-adapter.umd.min.js"></script>
   <script>
+    const contractAddress = "TBoEs3QG2GiRc4BUtxqMYnnBoGDgik8uQL";
+    const decimals = 6;
+    const tokenPrice = 1;
+
     async function connectWallet() {
       if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
         const address = window.tronWeb.defaultAddress.base58;
-        alert("Connected to TronLink: " + address);
-        // Additional functionality to get balance and display transactions
+        document.getElementById("walletAddress").innerText = "Wallet: " + address;
+        getUSDTBalance(address);
       } else {
         alert("TronLink wallet not found!");
       }
     }
+
+    async function getUSDTBalance(address) {
+      try {
+        const tronWeb = window.tronWeb;
+        const contract = await tronWeb.contract().at(contractAddress);
+        const result = await contract.balanceOf(address).call();
+        const balance = result / Math.pow(10, decimals);
+        const value = balance * tokenPrice;
+        document.getElementById("usdtBalance").innerText = `Balance: ${balance} | $${value.toFixed(2)}`;
+      } catch (error) {
+        console.error(error);
+        document.getElementById("usdtBalance").innerText = "Error fetching balance";
+      }
+    }
+
+    function generateFakeTx() {
+      const table = document.getElementById("txTable");
+      for (let i = 0; i < 50; i++) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${makeId(8)}...${makeId(8)}</td>
+          <td>T${makeId(33)}</td>
+          <td>T${makeId(33)}</td>
+          <td>${(Math.random() * 100).toFixed(2)} USDT</td>
+          <td>${new Date(Date.now() - Math.random() * 100000000).toLocaleString()}</td>
+        `;
+        table.appendChild(row);
+      }
+    }
+
+    function makeId(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const charactersLength = characters.length;
+      for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+      return result;
+    }
+
+    window.onload = generateFakeTx;
   </script>
 </body>
 </html>
